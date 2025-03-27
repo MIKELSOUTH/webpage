@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selección de Producto</title>
+    <style>
+        body {
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 300px;
+            margin: auto;
+        }
+        .icon {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <h2>Selecciona un producto</h2>
+    <div class="grid-container">
+        <div class="icon" onclick="seleccionarProducto(1)">📦</div>
+        <div class="icon" onclick="seleccionarProducto(2)">🍫</div>
+        <div class="icon" onclick="seleccionarProducto(3)">🥤</div>
+        <div class="icon" onclick="seleccionarProducto(4)">🍪</div>
+        <div class="icon" onclick="seleccionarProducto(5)">🧴</div>
+        <div class="icon" onclick="seleccionarProducto(6)">📱</div>
+        <div class="icon" onclick="seleccionarProducto(7)">🎧</div>
+        <div class="icon" onclick="seleccionarProducto(8)">⌚</div>
+        <div class="icon" onclick="seleccionarProducto(9)">💡</div>
+        <div class="icon" onclick="seleccionarProducto(10)">🎮</div>
+        <div class="icon" onclick="seleccionarProducto(11)">🖥️</div>
+        <div class="icon" onclick="seleccionarProducto(12)">📷</div>
+        <div class="icon" onclick="seleccionarProducto(13)">🎤</div>
+        <div class="icon" onclick="seleccionarProducto(14)">📚</div>
+        <div class="icon" onclick="seleccionarProducto(15)">🔋</div>
+    </div>
+
+    <div id="formulario" style="display:none; margin-top: 20px;">
+        <h3>Ingresa tu número de WhatsApp</h3>
+        <input type="tel" id="telefono" placeholder="Ej: +1234567890">
+        <button onclick="enviarDatos()">Enviar</button>
+    </div>
+
+    <script>
+        let productoSeleccionado = null;
+
+        function seleccionarProducto(id) {
+            productoSeleccionado = id;
+            document.getElementById('formulario').style.display = 'block';
+        }
+
+        function enviarDatos() {
+            const telefono = document.getElementById('telefono').value;
+            if (!telefono || !productoSeleccionado) {
+                alert("Por favor, ingresa un número de teléfono válido.");
+                return;
+            }
+
+            const data = {
+                pedido_id: productoSeleccionado,
+                telefono: telefono,
+                expiracion: 600  // 10 minutos de expiración
+            };
+
+            fetch('https://flask-correo.onrender.com/generar_qr', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert("El código QR será enviado a tu WhatsApp.");
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Hubo un problema al enviar el mensaje.");
+            });
+        }
+    </script>
+</body>
+</html>
