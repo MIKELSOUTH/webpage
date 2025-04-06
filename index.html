@@ -8,8 +8,8 @@
     body {
       background-image: url('fondo1.png');
       background-size: cover;
-      background-repeat: no-repeat;
       background-position: center;
+      background-repeat: no-repeat;
       font-family: 'Segoe UI', sans-serif;
       margin: 0;
       padding: 20px;
@@ -17,16 +17,16 @@
     }
 
     h1 {
-      font-size: 36px;
-      color: #222;
-      margin-bottom: 0;
+      color: #8B6508;
+      font-size: 32px;
+      margin-bottom: 10px;
     }
 
     h2 {
-      text-transform: uppercase;
+      color: #000;
       font-weight: bold;
-      color: black;
-      margin-top: 5px;
+      font-size: 20px;
+      margin-top: 0;
     }
 
     .grid-container {
@@ -39,20 +39,25 @@
 
     .icon {
       position: relative;
-      background-color: #5d4037;
-      border: 2px solid gold;
+      background-color: #5D4037;
+      border: 3px solid gold;
       border-radius: 12px;
       padding: 20px 10px;
       font-size: 16px;
       font-weight: bold;
-      color: goldenrod;
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+      color: #8B6508;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
       cursor: pointer;
       transition: 0.2s ease;
     }
 
     .icon:hover {
-      background-color: #6d4c41;
+      background-color: #8D6E63;
+    }
+
+    .icon.seleccionado {
+      background-color: #BCAAA4;
+      border-color: #5D4037;
     }
 
     .icon span {
@@ -60,13 +65,7 @@
       bottom: 5px;
       left: 8px;
       font-size: 12px;
-      color: white;
-    }
-
-    .icon.seleccionado {
-      background-color: #d7ccc8 !important;
-      border-color: gold;
-      color: goldenrod;
+      color: #000;
     }
 
     #formulario {
@@ -85,7 +84,7 @@
     button {
       padding: 10px 20px;
       font-size: 16px;
-      background-color: #81c784;
+      background-color: #5D4037;
       color: white;
       border: none;
       border-radius: 6px;
@@ -93,7 +92,7 @@
     }
 
     button:hover {
-      background-color: #66bb6a;
+      background-color: #795548;
     }
 
     #qrContainer {
@@ -120,13 +119,20 @@
   </style>
 </head>
 <body>
-  <h1>COSITAS RICAS</h1>
-  <h2>Selecciona un producto</h2>
+
+  <!-- Sonido de click en base64 -->
+  <audio id="clickSound" preload="auto">
+    <source src="data:audio/mpeg;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAACcQCA8XcAAARnJlZy1n9VfSUmwDFbT7wHChpxEFnkm3HlvXKdyol38N/8s1sH6lfTRKhtLfVghpC3rhrc37hIsy1jblVGG9WhJkgdoAbnMb5Lmp4F5iZWK1Izddp1w2+XtiJtQUktkwp1Psz8n3zVtIzbw0qJHf8NcQ9cdXAzHf0j0llwmtk1lx3FLUKqlG8JbVbxhxDrfRYMYGi1T09JQ1yQ=="
+           type="audio/mpeg">
+  </audio>
 
   <div id="qrContainer">
     <div id="qrMessage">📲 SCANEA QR en la máquina</div>
     <img id="qrImage" src="" alt="QR Code" />
   </div>
+
+  <h1>COSITAS RICAS</h1>
+  <h2>SELECCIONA UN PRODUCTO</h2>
 
   <div class="grid-container">
     <div class="icon" onclick="seleccionarProducto(1)">Coca Cola <span>1</span></div>
@@ -157,12 +163,17 @@
     let productoSeleccionado = null;
 
     function seleccionarProducto(id) {
+      const sonido = document.getElementById('clickSound');
+      if (sonido) sonido.play();
+
       productoSeleccionado = id;
+
       document.querySelectorAll('.icon').forEach(el => el.classList.remove('seleccionado'));
       const seleccionado = document.querySelector(`.icon[onclick="seleccionarProducto(${id})"]`);
       if (seleccionado) {
         seleccionado.classList.add('seleccionado');
       }
+
       document.getElementById('formulario').scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -184,21 +195,21 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       })
-        .then(response => response.json())
-        .then(data => {
-          const qrData = data.qr_base64;
-          document.getElementById('qrImage').src = `data:image/png;base64,${qrData}`;
-          document.getElementById('qrContainer').style.display = 'block';
-          document.getElementById('qrContainer').scrollIntoView({ behavior: 'smooth' });
+      .then(response => response.json())
+      .then(data => {
+        const qrData = data.qr_base64;
+        document.getElementById('qrImage').src = `data:image/png;base64,${qrData}`;
+        document.getElementById('qrContainer').style.display = 'block';
+        document.getElementById('qrContainer').scrollIntoView({ behavior: 'smooth' });
 
-          // Reset selección
-          document.querySelectorAll('.icon').forEach(el => el.classList.remove('seleccionado'));
-          productoSeleccionado = null;
-        })
-        .catch(error => {
-          console.error("Error:", error);
-          alert("Hubo un problema al generar el código QR.");
-        });
+        // Resetear selección
+        productoSeleccionado = null;
+        document.querySelectorAll('.icon').forEach(el => el.classList.remove('seleccionado'));
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        alert("Hubo un problema al generar el código QR.");
+      });
     }
   </script>
 </body>
