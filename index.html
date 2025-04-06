@@ -6,14 +6,19 @@
   <title>Selección de Producto</title>
   <style>
     body {
-      background-color: #fef7e0;
+      background-image: url('fondo1.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
       font-family: 'Segoe UI', sans-serif;
       margin: 0;
       padding: 20px;
       text-align: center;
-      background-image: url('fondo1.png'); /* Imagen de fondo */
-      background-size: cover;
-      background-position: center;
+    }
+
+    h2 {
+      text-transform: uppercase;
+      color: #4e342e;
     }
 
     .grid-container {
@@ -26,20 +31,20 @@
 
     .icon {
       position: relative;
-      background-color: #000000; /* Botones con fondo negro */
-      border: 2px solid #ffe082;
+      background-color: #5d4037;
+      border: 2px solid #5d4037;
       border-radius: 12px;
       padding: 20px 10px;
       font-size: 16px;
       font-weight: bold;
-      color: #ffffff; /* Letras blancas */
+      color: #000000;
       box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
       cursor: pointer;
       transition: 0.2s ease;
     }
 
     .icon:hover {
-      background-color: #333333; /* Fondo más oscuro al pasar el mouse */
+      background-color: #6d4c41;
     }
 
     .icon span {
@@ -47,7 +52,13 @@
       bottom: 5px;
       left: 8px;
       font-size: 12px;
-      color: #d6d6d6;
+      color: #000000;
+    }
+
+    .icon.seleccionado {
+      background-color: #d7ccc8 !important;
+      border-color: #5d4037;
+      color: #000000;
     }
 
     #formulario {
@@ -98,18 +109,11 @@
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
-
-    h2 {
-      text-transform: uppercase; /* Titulo en mayúsculas */
-      font-size: 24px;
-      font-weight: bold;
-      color: #333;
-    }
   </style>
 </head>
 <body>
   <div id="qrContainer">
-    <div id="qrMessage">📲 SCANEA QR EN LA MÁQUINA</div>
+    <div id="qrMessage">📲 SCANEA QR en la máquina</div>
     <img id="qrImage" src="" alt="QR Code" />
   </div>
 
@@ -144,6 +148,14 @@
 
     function seleccionarProducto(id) {
       productoSeleccionado = id;
+
+      document.querySelectorAll('.icon').forEach(el => el.classList.remove('seleccionado'));
+
+      const seleccionado = document.querySelector(`.icon[onclick="seleccionarProducto(${id})"]`);
+      if (seleccionado) {
+        seleccionado.classList.add('seleccionado');
+      }
+
       document.getElementById('formulario').scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -171,6 +183,10 @@
           document.getElementById('qrImage').src = `data:image/png;base64,${qrData}`;
           document.getElementById('qrContainer').style.display = 'block';
           document.getElementById('qrContainer').scrollIntoView({ behavior: 'smooth' });
+
+          // Reinicia los botones después de enviar
+          document.querySelectorAll('.icon').forEach(el => el.classList.remove('seleccionado'));
+          productoSeleccionado = null;
         })
         .catch(error => {
           console.error("Error:", error);
