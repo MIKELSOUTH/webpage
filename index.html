@@ -6,27 +6,11 @@
   <title>Selección de Producto</title>
   <style>
     body {
-      background-image: url('fondo1.png');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
+      background-color: #fef7e0;
       font-family: 'Segoe UI', sans-serif;
       margin: 0;
       padding: 20px;
       text-align: center;
-    }
-
-    h1 {
-      color: #8B6508;
-      font-size: 32px;
-      margin-bottom: 10px;
-    }
-
-    h2 {
-      color: #000;
-      font-weight: bold;
-      font-size: 20px;
-      margin-top: 0;
     }
 
     .grid-container {
@@ -39,25 +23,25 @@
 
     .icon {
       position: relative;
-      background-color: #5D4037;
-      border: 3px solid gold;
+      background-color: #6a4e23;  /* Marrón oscuro */
+      border: 2px solid gold;  /* Borde dorado */
       border-radius: 12px;
       padding: 20px 10px;
       font-size: 16px;
       font-weight: bold;
-      color: #8B6508;
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+      color: white;  /* Letras en blanco */
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
       cursor: pointer;
       transition: 0.2s ease;
     }
 
     .icon:hover {
-      background-color: #8D6E63;
+      background-color: #d7a86e;  /* Marrón claro */
     }
 
-    .icon.seleccionado {
-      background-color: #BCAAA4;
-      border-color: gold;
+    .icon.selected {
+      background-color: #d7a86e;  /* Cambio a marrón claro */
+      border: 2px solid gold;  /* Mantener borde dorado */
     }
 
     .icon span {
@@ -65,7 +49,7 @@
       bottom: 5px;
       left: 8px;
       font-size: 12px;
-      color: #000;
+      color: gold;
     }
 
     #formulario {
@@ -84,7 +68,7 @@
     button {
       padding: 10px 20px;
       font-size: 16px;
-      background-color: #5D4037;
+      background-color: #81c784;
       color: white;
       border: none;
       border-radius: 6px;
@@ -92,7 +76,7 @@
     }
 
     button:hover {
-      background-color: #795548;
+      background-color: #66bb6a;
     }
 
     #qrContainer {
@@ -116,14 +100,23 @@
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
+
+    h2 {
+      font-size: 24px;
+      color: #000000;  /* Negro oscuro */
+      font-weight: bold;
+    }
+
+    h3 {
+      font-size: 18px;
+      color: black;  /* Negro oscuro */
+    }
   </style>
 </head>
 <body>
-
-  <!-- Sonido de click en base64 -->
+  <!-- Audio -->
   <audio id="clickSound" preload="auto">
-    <source src="data:audio/mpeg;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAACcQCA8XcAAARnJlZy1n9VfSUmwDFbT7wHChpxEFnkm3HlvXKdyol38N/8s1sH6lfTRKhtLfVghpC3rhrc37hIsy1jblVGG9WhJkgdoAbnMb5Lmp4F5iZWK1Izddp1w2+XtiJtQUktkwp1Psz8n3zVtIzbw0qJHf8NcQ9cdXAzHf0j0llwmtk1lx3FLUKqlG8JbVbxhxDrfRYMYGi1T09JQ1yQ=="
-           type="audio/mpeg">
+    <source src="Voicy_Mouse Click Sound.mp3" type="audio/mpeg">
   </audio>
 
   <div id="qrContainer">
@@ -131,9 +124,8 @@
     <img id="qrImage" src="" alt="QR Code" />
   </div>
 
-  <h1>COSITAS RICAS</h1>
-  <h2>SELECCIONA UN PRODUCTO</h2>
-
+  <h2>COSITAS RICAS</h2>
+  <h3>SELECCIONA UN PRODUCTO</h3>
   <div class="grid-container">
     <div class="icon" onclick="seleccionarProducto(1)">Coca Cola <span>1</span></div>
     <div class="icon" onclick="seleccionarProducto(2)">Papas Fritas <span>2</span></div>
@@ -163,17 +155,17 @@
     let productoSeleccionado = null;
 
     function seleccionarProducto(id) {
-      const sonido = document.getElementById('clickSound');
-      if (sonido) sonido.play();
+      // Reproducir el sonido al seleccionar un producto
+      document.getElementById("clickSound").play();
 
       productoSeleccionado = id;
-
-      document.querySelectorAll('.icon').forEach(el => el.classList.remove('seleccionado'));
-      const seleccionado = document.querySelector(`.icon[onclick="seleccionarProducto(${id})"]`);
-      if (seleccionado) {
-        seleccionado.classList.add('seleccionado');
-      }
-
+      // Cambiar el estilo del botón seleccionado
+      const icons = document.querySelectorAll('.icon');
+      icons.forEach(icon => {
+        icon.classList.remove('selected');
+      });
+      event.currentTarget.classList.add('selected');
+      
       document.getElementById('formulario').scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -195,21 +187,17 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       })
-      .then(response => response.json())
-      .then(data => {
-        const qrData = data.qr_base64;
-        document.getElementById('qrImage').src = `data:image/png;base64,${qrData}`;
-        document.getElementById('qrContainer').style.display = 'block';
-        document.getElementById('qrContainer').scrollIntoView({ behavior: 'smooth' });
-
-        // Resetear selección
-        productoSeleccionado = null;
-        document.querySelectorAll('.icon').forEach(el => el.classList.remove('seleccionado'));
-      })
-      .catch(error => {
-        console.error("Error:", error);
-        alert("Hubo un problema al generar el código QR.");
-      });
+        .then(response => response.json())
+        .then(data => {
+          const qrData = data.qr_base64;
+          document.getElementById('qrImage').src = `data:image/png;base64,${qrData}`;
+          document.getElementById('qrContainer').style.display = 'block';
+          document.getElementById('qrContainer').scrollIntoView({ behavior: 'smooth' });
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          alert("Hubo un problema al generar el código QR.");
+        });
     }
   </script>
 </body>
