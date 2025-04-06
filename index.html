@@ -1,94 +1,145 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Máquina Expendedora</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-image: url("fondo.avif");
-      background-size: cover;
-      background-position: center;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Máquina Expendedora</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            background-image: url('fondo1.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
 
-    .qr-container {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background-color: rgba(255, 255, 255, 0.85);
-      padding: 1rem;
-    }
+        .contenedor {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-    #qr-image {
-      width: 50%;
-      max-width: 300px;
-      margin-top: 1rem;
-    }
+        #qr-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
 
-    .mensaje {
-      font-size: 1.4rem;
-      font-weight: bold;
-      text-align: center;
-      margin-top: 0.5rem;
-      color: #333;
-    }
+        #qr-image {
+            width: 60%;
+            max-width: 300px;
+            margin-bottom: 10px;
+        }
 
-    .grid-container {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(5, 1fr);
-      gap: 10px;
-      padding: 1rem;
-    }
+        #qr-message {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #222;
+            text-align: center;
+            background: #ffffffc2;
+            padding: 10px;
+            border-radius: 10px;
+        }
 
-    .producto-btn {
-      background-color: #ffefc1;
-      border: 2px solid #888;
-      border-radius: 10px;
-      padding: 1.5rem;
-      font-size: 1rem;
-      font-weight: bold;
-      color: #333;
-      position: relative;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
+        .teclado {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 100%;
+            max-width: 500px;
+            margin-top: 10px;
+        }
 
-    .producto-btn:hover {
-      transform: scale(1.05);
-    }
+        .producto {
+            padding: 15px;
+            font-size: 1.1rem;
+            text-align: center;
+            background-color: #f7c59f;
+            border: 2px solid #fff;
+            border-radius: 15px;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px #aaa;
+        }
 
-    .numero {
-      position: absolute;
-      bottom: 5px;
-      left: 8px;
-      font-size: 0.75rem;
-      color: #666;
-    }
-  </style>
+        .producto:hover {
+            background-color: #f5b27a;
+        }
+
+        .producto-numero {
+            position: absolute;
+            bottom: 5px;
+            left: 8px;
+            font-size: 0.8rem;
+            color: #555;
+        }
+    </style>
 </head>
 <body>
-  <div class="qr-container" id="qr-container">
-    <div class="mensaje">ESCANEA QR EN LA MÁQUINA</div>
-    <img id="qr-image" alt="Código QR">
-  </div>
+    <div class="contenedor">
+        <div id="qr-container">
+            <img id="qr-image" src="" alt="QR generado">
+            <div id="qr-message">ESCANEA QR EN LA MÁQUINA</div>
+        </div>
 
-  <div class="grid-container" id="grid-container">
-    <!-- Botones generados con JS -->
-  </div>
+        <div class="teclado" id="teclado">
+            <!-- Productos -->
+        </div>
+    </div>
 
-  <script>
-    const grid = document.getElementById("grid-container");
-    const qrContainer = document.getElementById("qr-container");
-    const qrImage = document.getElementById("qr-image");
+    <script>
+        const productos = [
+            "Coca-Cola", "Papas Fritas", "Galletas", "Agua", "Jugo",
+            "Chocolate", "Barra Cereal", "Sandwich", "Té", "Café",
+            "Energética", "Helado", "Chicle", "Muffin", "Pan", 
+            "Sopa Instantánea", "Turrón", "Yogur", "Gomitas", "Leche",
+            "Fruta", "Maní", "Brownie", "Caramelo", "Té Helado"
+        ];
 
-    for (let i = 1; i <= 15; i++) {
-      const btn = document.createElement("button");
-      btn.className = "producto-btn";
-      btn.innerHTML = `Producto ${i}<
+        const teclado = document.getElementById('teclado');
+        const qrContainer = document.getElementById('qr-container');
+        const qrImage = document.getElementById('qr-image');
+
+        productos.forEach((producto, index) => {
+            const btn = document.createElement('div');
+            btn.className = 'producto';
+            btn.innerHTML = `${producto}<div class="producto-numero">${index + 1}</div>`;
+            btn.onclick = () => enviarPedido(index + 1);
+            teclado.appendChild(btn);
+        });
+
+        async function enviarPedido(pedidoId) {
+            const telefono = prompt("Ingresa tu número (sin +56):");
+            if (!telefono || telefono.length < 8) return alert("Número inválido");
+
+            const data = {
+                pedido_id: pedidoId,
+                expiracion: 600,
+                telefono: "+56" + telefono
+            };
+
+            try {
+                const res = await fetch("https://flask-wsp.onrender.com/generar_qr", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+
+                if (!res.ok) throw new Error("Error al generar el QR");
+
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+
+                qrImage.src = url;
+                qrContainer.style.display = "flex";
+            } catch (e) {
+                alert("Error: " + e.message);
+            }
+        }
+    </script>
+</body>
+</html>
