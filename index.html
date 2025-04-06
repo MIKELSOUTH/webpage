@@ -16,9 +16,17 @@
       text-align: center;
     }
 
+    h1 {
+      font-size: 36px;
+      color: #b8860b;
+      margin-bottom: 0;
+    }
+
     h2 {
       text-transform: uppercase;
-      color: #4e342e;
+      font-weight: bold;
+      color: gold;
+      margin-top: 5px;
     }
 
     .grid-container {
@@ -32,7 +40,7 @@
     .icon {
       position: relative;
       background-color: #5d4037;
-      border: 2px solid #5d4037;
+      border: 2px solid gold;
       border-radius: 12px;
       padding: 20px 10px;
       font-size: 16px;
@@ -57,7 +65,7 @@
 
     .icon.seleccionado {
       background-color: #d7ccc8 !important;
-      border-color: #5d4037;
+      border-color: #3e2723;
       color: #ffffff;
     }
 
@@ -112,12 +120,14 @@
   </style>
 </head>
 <body>
+  <h1>COSITAS RICAS</h1>
+  <h2>Selecciona un producto</h2>
+
   <div id="qrContainer">
     <div id="qrMessage">📲 SCANEA QR en la máquina</div>
     <img id="qrImage" src="" alt="QR Code" />
   </div>
 
-  <h2>Selecciona un producto</h2>
   <div class="grid-container">
     <div class="icon" onclick="seleccionarProducto(1)">Coca Cola <span>1</span></div>
     <div class="icon" onclick="seleccionarProducto(2)">Papas Fritas <span>2</span></div>
@@ -181,7 +191,7 @@
           document.getElementById('qrContainer').style.display = 'block';
           document.getElementById('qrContainer').scrollIntoView({ behavior: 'smooth' });
 
-          // Reset botones
+          // Reset selección
           document.querySelectorAll('.icon').forEach(el => el.classList.remove('seleccionado'));
           productoSeleccionado = null;
         })
