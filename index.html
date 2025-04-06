@@ -37,7 +37,7 @@
       padding: 20px 10px;
       font-size: 16px;
       font-weight: bold;
-      color: #000000;
+      color: #ffffff;
       box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
       cursor: pointer;
       transition: 0.2s ease;
@@ -52,13 +52,13 @@
       bottom: 5px;
       left: 8px;
       font-size: 12px;
-      color: #000000;
+      color: #ffffff;
     }
 
     .icon.seleccionado {
       background-color: #d7ccc8 !important;
       border-color: #5d4037;
-      color: #000000;
+      color: #ffffff;
     }
 
     #formulario {
@@ -114,85 +114,4 @@
 <body>
   <div id="qrContainer">
     <div id="qrMessage">📲 SCANEA QR en la máquina</div>
-    <img id="qrImage" src="" alt="QR Code" />
-  </div>
-
-  <h2>Selecciona un producto</h2>
-  <div class="grid-container">
-    <div class="icon" onclick="seleccionarProducto(1)">Coca Cola <span>1</span></div>
-    <div class="icon" onclick="seleccionarProducto(2)">Papas Fritas <span>2</span></div>
-    <div class="icon" onclick="seleccionarProducto(3)">Galletas <span>3</span></div>
-    <div class="icon" onclick="seleccionarProducto(4)">Chocolates <span>4</span></div>
-    <div class="icon" onclick="seleccionarProducto(5)">Jugos <span>5</span></div>
-    <div class="icon" onclick="seleccionarProducto(6)">Agua <span>6</span></div>
-    <div class="icon" onclick="seleccionarProducto(7)">Snacks <span>7</span></div>
-    <div class="icon" onclick="seleccionarProducto(8)">Café <span>8</span></div>
-    <div class="icon" onclick="seleccionarProducto(9)">Té <span>9</span></div>
-    <div class="icon" onclick="seleccionarProducto(10)">Energizantes <span>10</span></div>
-    <div class="icon" onclick="seleccionarProducto(11)">Refrescos <span>11</span></div>
-    <div class="icon" onclick="seleccionarProducto(12)">Leche <span>12</span></div>
-    <div class="icon" onclick="seleccionarProducto(13)">Frutos Secos <span>13</span></div>
-    <div class="icon" onclick="seleccionarProducto(14)">Galletas Saladas <span>14</span></div>
-    <div class="icon" onclick="seleccionarProducto(15)">Dulces <span>15</span></div>
-  </div>
-
-  <div id="formulario">
-    <h3>Ingresa tu número de WhatsApp</h3>
-    <input type="tel" id="telefono" placeholder="Ej: 912345678" />
-    <br />
-    <button onclick="enviarDatos()">Enviar</button>
-  </div>
-
-  <script>
-    let productoSeleccionado = null;
-
-    function seleccionarProducto(id) {
-      productoSeleccionado = id;
-
-      document.querySelectorAll('.icon').forEach(el => el.classList.remove('seleccionado'));
-
-      const seleccionado = document.querySelector(`.icon[onclick="seleccionarProducto(${id})"]`);
-      if (seleccionado) {
-        seleccionado.classList.add('seleccionado');
-      }
-
-      document.getElementById('formulario').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function enviarDatos() {
-      const telefono = document.getElementById('telefono').value.trim();
-      if (!telefono || !productoSeleccionado) {
-        alert("Completa el número de teléfono.");
-        return;
-      }
-
-      const data = {
-        pedido_id: productoSeleccionado,
-        telefono: "+56" + telefono,
-        expiracion: 600
-      };
-
-      fetch('https://flask-wsp.onrender.com/generar_qr', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      })
-        .then(response => response.json())
-        .then(data => {
-          const qrData = data.qr_base64;
-          document.getElementById('qrImage').src = `data:image/png;base64,${qrData}`;
-          document.getElementById('qrContainer').style.display = 'block';
-          document.getElementById('qrContainer').scrollIntoView({ behavior: 'smooth' });
-
-          // Reinicia los botones después de enviar
-          document.querySelectorAll('.icon').forEach(el => el.classList.remove('seleccionado'));
-          productoSeleccionado = null;
-        })
-        .catch(error => {
-          console.error("Error:", error);
-          alert("Hubo un problema al generar el código QR.");
-        });
-    }
-  </script>
-</body>
-</html>
+    <img id="qrImage" src="" alt="QR Code
