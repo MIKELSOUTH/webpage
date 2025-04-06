@@ -3,172 +3,92 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Selección de Producto</title>
+  <title>Máquina Expendedora</title>
   <style>
     body {
-      background-image: url('https://i.imgur.com/3EwUJOA.png'); /* patrón estilo mantel italiano */
-      background-repeat: repeat;
-      background-size: 200px 200px;
-      font-family: 'Segoe UI', sans-serif;
       margin: 0;
-      padding: 20px;
+      font-family: Arial, sans-serif;
+      background-image: url("fondo.avif");
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .qr-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255, 255, 255, 0.85);
+      padding: 1rem;
+    }
+
+    #qr-image {
+      width: 50%;
+      max-width: 300px;
+      margin-top: 1rem;
+    }
+
+    .mensaje {
+      font-size: 1.4rem;
+      font-weight: bold;
       text-align: center;
+      margin-top: 0.5rem;
+      color: #333;
     }
 
     .grid-container {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      max-width: 400px;
-      margin: 20px auto;
+      grid-template-rows: repeat(5, 1fr);
+      gap: 10px;
+      padding: 1rem;
     }
 
-    .icon {
-      position: relative;
-      background-color: #fff8e1;
-      border: 2px solid #ffc107;
-      border-radius: 12px;
-      padding: 20px 10px;
-      font-size: 16px;
+    .producto-btn {
+      background-color: #ffefc1;
+      border: 2px solid #888;
+      border-radius: 10px;
+      padding: 1.5rem;
+      font-size: 1rem;
       font-weight: bold;
-      color: #4e342e;
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+      color: #333;
+      position: relative;
       cursor: pointer;
-      transition: 0.2s ease;
+      transition: transform 0.2s;
     }
 
-    .icon:hover {
-      background-color: #fff3cd;
+    .producto-btn:hover {
+      transform: scale(1.05);
     }
 
-    .icon span {
+    .numero {
       position: absolute;
       bottom: 5px;
       left: 8px;
-      font-size: 12px;
-      color: #7b5e57;
-    }
-
-    #formulario {
-      margin-top: 20px;
-    }
-
-    input[type="tel"] {
-      padding: 8px;
-      font-size: 16px;
-      width: 60%;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      margin-bottom: 10px;
-    }
-
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #43a047;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #388e3c;
-    }
-
-    #qrContainer {
-      display: none;
-      margin: 0 auto 20px;
-      text-align: center;
-      max-width: 320px;
-    }
-
-    #qrMessage {
-      font-size: 20px;
-      font-weight: bold;
-      margin-bottom: 10px;
-      color: #d84315;
-    }
-
-    #qrImage {
-      width: 100%;
-      max-width: 300px;
-      border: 4px solid #ffccbc;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      font-size: 0.75rem;
+      color: #666;
     }
   </style>
 </head>
 <body>
-  <div id="qrContainer">
-    <div id="qrMessage">📲 SCANEA QR en la máquina</div>
-    <img id="qrImage" src="" alt="QR Code" />
+  <div class="qr-container" id="qr-container">
+    <div class="mensaje">ESCANEA QR EN LA MÁQUINA</div>
+    <img id="qr-image" alt="Código QR">
   </div>
 
-  <h2 style="color:white; text-shadow: 1px 1px 2px black;">Selecciona un producto</h2>
-  <div class="grid-container">
-    <div class="icon" onclick="seleccionarProducto(1)">Coca Cola <span>1</span></div>
-    <div class="icon" onclick="seleccionarProducto(2)">Papas Fritas <span>2</span></div>
-    <div class="icon" onclick="seleccionarProducto(3)">Galletas <span>3</span></div>
-    <div class="icon" onclick="seleccionarProducto(4)">Chocolates <span>4</span></div>
-    <div class="icon" onclick="seleccionarProducto(5)">Jugos <span>5</span></div>
-    <div class="icon" onclick="seleccionarProducto(6)">Agua <span>6</span></div>
-    <div class="icon" onclick="seleccionarProducto(7)">Snacks <span>7</span></div>
-    <div class="icon" onclick="seleccionarProducto(8)">Café <span>8</span></div>
-    <div class="icon" onclick="seleccionarProducto(9)">Té <span>9</span></div>
-    <div class="icon" onclick="seleccionarProducto(10)">Energizantes <span>10</span></div>
-    <div class="icon" onclick="seleccionarProducto(11)">Refrescos <span>11</span></div>
-    <div class="icon" onclick="seleccionarProducto(12)">Leche <span>12</span></div>
-    <div class="icon" onclick="seleccionarProducto(13)">Frutos Secos <span>13</span></div>
-    <div class="icon" onclick="seleccionarProducto(14)">Galletas Saladas <span>14</span></div>
-    <div class="icon" onclick="seleccionarProducto(15)">Dulces <span>15</span></div>
-  </div>
-
-  <div id="formulario">
-    <h3 style="color:white; text-shadow: 1px 1px 2px black;">Ingresa tu número de WhatsApp</h3>
-    <input type="tel" id="telefono" placeholder="Ej: 912345678" />
-    <br />
-    <button onclick="enviarDatos()">Enviar</button>
+  <div class="grid-container" id="grid-container">
+    <!-- Botones generados con JS -->
   </div>
 
   <script>
-    let productoSeleccionado = null;
+    const grid = document.getElementById("grid-container");
+    const qrContainer = document.getElementById("qr-container");
+    const qrImage = document.getElementById("qr-image");
 
-    function seleccionarProducto(id) {
-      productoSeleccionado = id;
-      document.getElementById('formulario').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function enviarDatos() {
-      const telefono = document.getElementById('telefono').value.trim();
-      if (!telefono || !productoSeleccionado) {
-        alert("Completa el número de teléfono.");
-        return;
-      }
-
-      const data = {
-        pedido_id: productoSeleccionado,
-        telefono: "+56" + telefono,
-        expiracion: 600
-      };
-
-      fetch('https://flask-wsp.onrender.com/generar_qr', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      })
-        .then(response => response.json())
-        .then(data => {
-          const qrData = data.qr_base64;
-          document.getElementById('qrImage').src = `data:image/png;base64,${qrData}`;
-          document.getElementById('qrContainer').style.display = 'block';
-          document.getElementById('qrContainer').scrollIntoView({ behavior: 'smooth' });
-        })
-        .catch(error => {
-          console.error("Error:", error);
-          alert("Hubo un problema al generar el código QR.");
-        });
-    }
-  </script>
-</body>
-</html>
+    for (let i = 1; i <= 15; i++) {
+      const btn = document.createElement("button");
+      btn.className = "producto-btn";
+      btn.innerHTML = `Producto ${i}<
