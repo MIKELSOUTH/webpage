@@ -1,210 +1,39 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Selección de Producto</title>
+  <meta charset="UTF-8">
+  <title>Respuesta Aleatoria</title>
   <style>
     body {
-      background-color: #fef7e0;
-      background-image: url('fondo1.png'); /* Imagen de fondo */
-      background-size: cover;
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: 20px;
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
     }
-
-    .grid-container {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      max-width: 400px;
-      margin: 20px auto;
-    }
-
-    .icon {
-      position: relative;
-      background-color: #c89c6d;  /* Marrón claro */
-      border: 2px solid gold;  /* Borde dorado */
-      border-radius: 12px;
-      padding: 20px 10px;
-      font-size: 16px;
-      font-weight: bold;
-      color: black;  /* Letras en negro */
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-      cursor: pointer;
-      transition: 0.2s ease;
-    }
-
-    .icon:hover {
-      background-color: #d7a86e;  /* Marrón aún más claro */
-    }
-
-    .icon.selected {
-      background-color: #c89c6d;  /* Fondo marrón claro */
-      border: 2px solid gold;  /* Mantener borde dorado */
-      color: white;  /* Cambiar letras a blanco cuando se selecciona */
-    }
-
-    .icon span {
-      position: absolute;
-      bottom: 5px;
-      left: 8px;
-      font-size: 12px;
-      color: gold;
-    }
-
-    #formulario {
-      margin-top: 20px;
-    }
-
-    input[type="tel"] {
-      padding: 8px;
-      font-size: 16px;
-      width: 60%;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      margin-bottom: 10px;
-    }
-
     button {
       padding: 10px 20px;
       font-size: 16px;
-      background-color: #81c784;
-      color: white;
-      border: none;
-      border-radius: 6px;
       cursor: pointer;
     }
-
-    button:hover {
-      background-color: #66bb6a;
-    }
-
-    #qrContainer {
-      display: none;
-      margin: 0 auto 20px;
-      text-align: center;
-      max-width: 320px;
-    }
-
-    #qrMessage {
-      font-size: 20px;
+    #respuesta {
+      margin-top: 20px;
+      font-size: 24px;
       font-weight: bold;
-      margin-bottom: 10px;
-      color: #d84315;
-    }
-
-    #qrImage {
-      width: 100%;
-      max-width: 300px;
-      border: 4px solid #ffccbc;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    }
-
-    h2 {
-      font-size: 36px;  /* Tamaño más grande */
-      color: black;  /* Negro oscuro */
-      font-weight: bold;
-    }
-
-    h3 {
-      font-size: 18px;
-      color: black;  /* Negro oscuro */
     }
   </style>
 </head>
 <body>
-  <!-- Audio -->
-  <audio id="clickSound" preload="auto">
-    <source src="Voicy_Mouse Click Sound.mp3" type="audio/mpeg">
-    Tu navegador no soporta el elemento de audio.
-  </audio>
-
-  <div id="qrContainer">
-    <div id="qrMessage">📲 SCANEA QR en la máquina</div>
-    <img id="qrImage" src="" alt="QR Code" />
-  </div>
-
-  <h2>COSITAS RICAS</h2>
-  <h3>SELECCIONA UN PRODUCTO</h3>
-  <div class="grid-container">
-    <div class="icon" onclick="seleccionarProducto(1)">Coca Cola <span>1</span></div>
-    <div class="icon" onclick="seleccionarProducto(2)">Papas Fritas <span>2</span></div>
-    <div class="icon" onclick="seleccionarProducto(3)">Galletas <span>3</span></div>
-    <div class="icon" onclick="seleccionarProducto(4)">Chocolates <span>4</span></div>
-    <div class="icon" onclick="seleccionarProducto(5)">Jugos <span>5</span></div>
-    <div class="icon" onclick="seleccionarProducto(6)">Agua <span>6</span></div>
-    <div class="icon" onclick="seleccionarProducto(7)">Snacks <span>7</span></div>
-    <div class="icon" onclick="seleccionarProducto(8)">Café <span>8</span></div>
-    <div class="icon" onclick="seleccionarProducto(9)">Té <span>9</span></div>
-    <div class="icon" onclick="seleccionarProducto(10)">Energizantes <span>10</span></div>
-    <div class="icon" onclick="seleccionarProducto(11)">Refrescos <span>11</span></div>
-    <div class="icon" onclick="seleccionarProducto(12)">Leche <span>12</span></div>
-    <div class="icon" onclick="seleccionarProducto(13)">Frutos Secos <span>13</span></div>
-    <div class="icon" onclick="seleccionarProducto(14)">Galletas Saladas <span>14</span></div>
-    <div class="icon" onclick="seleccionarProducto(15)">Dulces <span>15</span></div>
-  </div>
-
-  <div id="formulario">
-    <h3>Ingresa tu número de WhatsApp</h3>
-    <input type="tel" id="telefono" placeholder="Ej: 912345678" />
-    <br />
-    <button onclick="enviarDatos()">Enviar</button>
-  </div>
+  <button id="boton">¿Me respondes?</button>
+  <div id="respuesta"></div>
 
   <script>
-    let productoSeleccionado = null;
-
-    function seleccionarProducto(id) {
-      // Reproducir el sonido al seleccionar un producto
-      const clickSound = document.getElementById("clickSound");
-      clickSound.currentTime = 0; // Reiniciar el sonido para que siempre suene desde el inicio
-      clickSound.play();
-
-      productoSeleccionado = id;
-      // Cambiar el estilo del botón seleccionado
-      const icons = document.querySelectorAll('.icon');
-      icons.forEach(icon => {
-        icon.classList.remove('selected');
-      });
-      event.currentTarget.classList.add('selected');
-      
-      document.getElementById('formulario').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function enviarDatos() {
-      const telefono = document.getElementById('telefono').value.trim();
-      if (!telefono || !productoSeleccionado) {
-        alert("Completa el número de teléfono.");
-        return;
-      }
-
-      const data = {
-        pedido_id: productoSeleccionado,
-        telefono: "+56" + telefono,
-        expiracion: 600
-      };
-
-      fetch('https://flask-wsp.onrender.com/generar_qr', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      })
-        .then(response => response.json())
-        .then(data => {
-          const qrData = data.qr_base64;
-          document.getElementById('qrImage').src = `data:image/png;base64,${qrData}`;
-          document.getElementById('qrContainer').style.display = 'block';
-          document.getElementById('qrContainer').scrollIntoView({ behavior: 'smooth' });
-        })
-        .catch(error => {
-          console.error("Error:", error);
-          alert("Hubo un problema al generar el código QR.");
-        });
-    }
+    document.getElementById('boton').addEventListener('click', () => {
+      const respuestas = ['Sí', 'No', 'Tal vez'];
+      const aleatorio = Math.floor(Math.random() * respuestas.length);
+      document.getElementById('respuesta').textContent = respuestas[aleatorio];
+    });
   </script>
 </body>
 </html>
