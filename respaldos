@@ -1,1 +1,157 @@
 
+# main.py - Para Render
+
+# ==============================================================================
+# 1. IMPORTACIÓN DE LIBRERÍAS
+# ==============================================================================
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+import qrcode
+import base64
+from io import BytesIO
+import mercadopago
+import os
+import time
+import paho.mqtt.client as mqtt
+
+# ==============================================================================
+# 2. CONFIGURACIÓN INICIAL
+# ==============================================================================
+
+# --- Lee las Variables de Entorno (que se configuran en Render) ---
+MP_ACCESS_TOKEN = os.environ.get("MP_ACCESS_TOKEN")
+SUCCESS_URL = os.environ.get("SUCCESS_URL")
+MQTT_BROKER_ADDRESS = os.environ.get("MQTT_BROKER_ADDRESS")
+MQTT_PORT = int(os.environ.get("MQTT_PORT", 8883))
+MQTT_USER = os.environ.get("MQTT_USER")
+MQTT_PASSWORD = os.environ.get("MQTT_PASSWORD")
+
+# --- Inicialización de servicios y datos ---
+sdk = mercadopago.SDK(MP_ACCESS_TOKEN)
+QRs_GENERADOS = {} # Almacén en memoria para los QRs
+
+CATALOGO_PRODUCTOS = {
+    1: {"nombre": "Coca Cola", "precio": 1000}, 2: {"nombre": "Papas Fritas", "precio": 800},
+    3: {"nombre": "Galletas", "precio": 600}, 4: {"nombre": "Chocolates", "precio": 1200},
+    5: {"nombre": "Jugos", "precio": 900}, 6: {"nombre": "Agua", "precio": 700},
+    7: {"nombre": "Snacks", "precio": 850}, 8: {"nombre": "Café", "precio": 1500},
+    9: {"nombre": "Té", "precio": 1300}, 10: {"nombre": "Energizantes", "precio": 1800},
+    11: {"nombre": "Refrescos", "precio": 950}, 12: {"nombre": "Leche", "precio": 800},
+    13: {"nombre": "Frutos Secos", "precio": 2000}, 14: {"nombre": "Galletas Saladas", "precio": 650},
+    15: {"nombre": "Dulces", "precio": 500}
+}
+
+# ==============================================================================
+# 3. INICIALIZACIÓN DE LA APLICACIÓN FLASK
+# ==============================================================================
+app = Flask(__name__)
+CORS(app)
+
+# ==============================================================================
+# 4. DEFINICIÓN DE RUTAS (ENDPOINTS)
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# FUNCIÓN: index()
+# RUTA: /
+# QUÉ HACE: Es la ruta raíz. Sirve para verificar que el servidor está activo.
+# ------------------------------------------------------------------------------
+@app.route('/')
+def index():
+    return "Servidor Vending Machine - API en funcionamiento."
+
+# ------------------------------------------------------------------------------
+# FUNCIÓN: crear_pago()
+# RUTA: /crear_pago
+# QUÉ HACE: Recibe el ID de un producto y de una máquina desde la página web,
+#           habla con Mercado Pago para crear una sesión de pago y devuelve
+#           el ID de esa sesión a la página web.
+# ------------------------------------------------------------------------------
+@app.route('/crear_pago', methods=['POST'])
+def crear_pago():
+    try:
+        data_request = request.get_json()
+        pedido_id = data_request.get('pedido_id')
+        machine_id = data_request.get('machine_id', 'maquina-desconocida')
+        producto = CATALOGO_PRODUCTOS.get(int(pedido_id))
+        if not producto:
+            return jsonify({"error": "Producto no encontrado"}), 404
+        
+        referencia_compuesta = f"{machine_id}:{pedido_id}"
+        preference_data = {
+            "items": [{"title": producto["nombre"], "quantity": 1, "unit_price": producto["precio"]}],
+            "back_urls": { "success": SUCCESS_URL },
+            "auto_return": "approved",
+            "external_reference": referencia_compuesta
+        }
+        preference_response = sdk.preference().create(preference_data)
+        return jsonify({"preference_id": preference_response["response"]["id"]})
+    except Exception as e:
+        print(f"Error en /crear_pago: {e}")
+        return jsonify({"error": str(e)}), 500
+
+# ------------------------------------------------------------------------------
+# FUNCIÓN: mercadopago_webhook()
+# RUTA: /mercadopago-webhook
+# QUÉ HACE: Es la ruta secreta que Mercado Pago llama para notificar que un
+#           pago fue exitoso. Esta función genera el QR, lo guarda en la
+#           memoria temporal y publica la orden en el canal MQTT correcto.
+# ------------------------------------------------------------------------------
+@app.route('/mercadopago-webhook', methods=['POST'])
+def mercadopago_webhook():
+    try:
+        data = request.get_json()
+        if data and data.get("type") == "payment":
+            payment_id = str(data.get("data", {}).get("id"))
+            if not payment_id:
+                return jsonify({"status": "ok"}), 200
+
+            payment_info = sdk.payment().get(payment_id)
+            payment = payment_info["response"]
+            if payment.get("status") == "approved":
+                referencia_compuesta = payment.get("external_reference")
+                machine_id, pedido_id = referencia_compuesta.split(':')
+                
+                expiracion_segundos = 600
+                tiempo_expiracion_unix = int(time.time()) + expiracion_segundos
+                mensaje_para_pi = f"{pedido_id},{tiempo_expiracion_unix}"
+                
+                qr_img = qrcode.make(mensaje_para_pi)
+                buffer = BytesIO()
+                qr_img.save(buffer, format='PNG')
+                img_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+
+                QRs_GENERADOS[payment_id] = img_base64
+                print(f"QR para payment_id: {payment_id} guardado en memoria.")
+
+                try:
+                    client = mqtt.Client()
+                    client.username_pw_set(MQTT_USER, MQTT_PASSWORD)
+                    client.connect(MQTT_BROKER_ADDRESS, MQTT_PORT, 60)
+                    topic = f"ordenes/{machine_id}"
+                    client.publish(topic, mensaje_para_pi)
+                    client.disconnect()
+                    print(f"Mensaje publicado en el tópico MQTT '{topic}'.")
+                except Exception as e:
+                    print(f"ALERTA: Error al publicar mensaje en MQTT: {e}")
+    except Exception as e:
+        print(f"!!! ERROR INESPERADO EN EL WEBHOOK: {e}")
+        return jsonify({"error": "Error interno"}), 500
+    
+    return jsonify({"status": "ok"}), 200
+
+# ------------------------------------------------------------------------------
+# FUNCIÓN: get_qr()
+# RUTA: /get-qr/<payment_id>
+# QUÉ HACE: Es la ruta que la página 'pago_exitoso.html' llama repetidamente
+#           para preguntar si el QR ya está listo. Busca el QR en la memoria
+#           temporal y lo devuelve cuando lo encuentra.
+# ------------------------------------------------------------------------------
+@app.route('/get-qr/<payment_id>')
+def get_qr(payment_id):
+    qr_image = QRs_GENERADOS.get(str(payment_id))
+    if qr_image:
+        del QRs_GENERADOS[str(payment_id)]
+        return jsonify({"status": "found", "qr_base64": qr_image})
+    else:
+        return jsonify({"status": "pending"}), 202
